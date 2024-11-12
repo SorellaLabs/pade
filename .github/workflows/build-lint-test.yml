@@ -1,0 +1,77 @@
+name: 'Build-Lint-Test'
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  build:
+    name: 'Build + Fmt'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy, rustfmt
+          toolchain: nightly
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+
+      - name: "build nightly"
+        run: cargo build --workspace --all-features
+        env:
+          RUSTFLAGS: -D warnings
+
+      - name: "cargo fmt"
+        run: cargo fmt --all --check
+
+  clippy:
+    name: "clippy"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy,rustfmt
+          toolchain: nightly
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+          key: "clippy-nightly"
+
+      - name: "clippy all"
+        run: cargo clippy --all-targets
+        env: 
+          RUSTFLAGS: -D warnings
+
+  test:
+    name: 'Run Tests'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          profile: minimal
+          override: true
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - name: tests 
+        run: cargo test --workspace --all-features
