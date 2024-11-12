@@ -18,5 +18,9 @@ proc-macro2 = "1.0.86"
 itertools = "0.13.0"
 
 [dev-dependencies]
+alloy = { workspace = true, features = [
+  "signers",
+"signer-local",
+  "sol-types",
+] }
 pade.workspace = true
-alloy.workspace = true

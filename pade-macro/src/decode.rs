@@ -212,13 +212,15 @@ fn build_enum_impl(name: &Ident, generics: &Generics, e: &DataEnum) -> TokenStre
                 // if there is no var and we are going to check the first byte.
                 // we need to ensure that there is at-least 2 bytes as we will parse the var
                 // and then jump to the second byte
-                if buf.len() < 2 && var.is_none() {
+                if buf.len() < 1 && var.is_none() {
                     return Err(pade::PadeDecodeError::InvalidSize)
                 }
                 // the variant will either be the first byte or passed in
                 let variant = var.unwrap_or_else(|| {
                     let ch = buf[0];
-                    *buf = &buf[1..];
+                    if buf.len() != 0 {
+                        *buf = &buf[1..];
+                    }
                     ch
                 });
 
