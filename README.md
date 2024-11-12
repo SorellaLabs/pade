@@ -1,4 +1,4 @@
-# Packed ABI Decodable Encoding (PADE? name TBD) (v0.1)
+# Packed ABI Decodable Encoding (v0.1)
 
 PADE is an encoding format that's meant to be simple, robust and trade-off calldata usage with
 decoding cost aiming to be used by Ethereum mainnet contracts. This is the encoding used in
