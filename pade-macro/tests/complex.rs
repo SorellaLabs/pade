@@ -55,33 +55,33 @@ fn enums_have_correct_variant_bit_width() {
     );
 }
 
+#[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
+struct OuterStruct {
+    #[pade_width(3)]
+    x:      i32,
+    enum1:  Cases,
+    list:   Vec<u128>,
+    inside: Inside,
+    enum2:  Cases
+}
+
+#[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
+struct Inside {
+    number:  u128,
+    another: u128,
+    enum1:   Cases
+}
+
+#[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
+pub enum Cases {
+    Once { x: u128, y: u128 },
+    Twice { a: u128, b: u128 },
+    // memes
+    Thrice { a: u128, b: u128 }
+}
+
 #[test]
 fn supports_struct_with_enum() {
-    #[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
-    struct OuterStruct {
-        #[pade_width(3)]
-        x:      i32,
-        enum1:  Cases,
-        list:   Vec<u128>,
-        inside: Inside,
-        enum2:  Cases
-    }
-
-    #[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
-    struct Inside {
-        number:  u128,
-        another: u128,
-        enum1:   Cases
-    }
-
-    #[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
-    pub enum Cases {
-        Once { x: u128, y: u128 },
-        Twice { a: u128, b: u128 },
-        // memes
-        Thrice { a: u128, b: u128 }
-    }
-
     let outer = OuterStruct {
         x:      34342,
         enum1:  Cases::Twice { a: 10, b: 2000000 },
@@ -99,6 +99,27 @@ fn supports_struct_with_enum() {
     let decoded = OuterStruct::pade_decode(&mut slice, None).unwrap();
 
     assert_eq!(outer, decoded);
+}
+
+#[test]
+fn regression_panic_1() {
+    let mut bytes: &[u8] = &[
+        9, 0, 134, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 38, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 132, 128, 0, 0,
+        80, 0, 0, 0, 0, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 15, 183, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 239, 96, 2, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 13, 243, 251, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 146, 250, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 123, 0, 0, 0, 0, 0, 0, 0, 255, 245, 0, 0, 0, 0,
+        0, 1, 167, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ];
+    let _ = OuterStruct::pade_decode(&mut bytes, None);
+}
+
+#[test]
+fn regression_panic_2() {
+    let mut bytes: &[u8] = &[0];
+    let _ = OuterStruct::pade_decode(&mut bytes, None);
 }
 
 #[test]
