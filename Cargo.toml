@@ -1,0 +1,19 @@
+[workspace]
+members = ["pade-macro", "pade"]
+
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+license = "MIT OR Apache-2.0"
+homepage = "https://github.com/SorellaLabs/pade"
+repository = "https://github.com/SorellaLabs/pade"
+exclude = [".github/"]
+
+[workspace.dependencies]
+pade-macro.path = "./pade-macro/"
+pade.path = "./pade/"
+thiserror = "1.0"
+alloy = { version = "0.4.2", features = ["sol-types"] }
