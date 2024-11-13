@@ -23,4 +23,6 @@ alloy = { workspace = true, features = [
 "signer-local",
   "sol-types",
 ] }
+test-fuzz = "6"
+serde = "1"
 pade.workspace = true
