@@ -1,6 +1,6 @@
 use alloy::{
     primitives::{aliases::I24, Address, Bytes, FixedBytes, Signature, U256},
-    sol_types::SolValue,
+    sol_types::SolValue
 };
 
 use crate::{PadeDecode, PadeDecodeError, PadeEncode};
@@ -52,6 +52,10 @@ macro_rules! prim_decode {
                     // item size in bytes vs given rep.
                     let padding_offset = BYTES - size;
 
+                    if buf.len() < size {
+                        return Err(PadeDecodeError::InvalidSize)
+                    }
+
                     // the actual size
                     let subslice = &buf[..size];
 
@@ -75,8 +79,22 @@ macro_rules! prim_decode {
     };
 }
 
-prim_decode!(u8, u16, u32, u64, i32, I24, U256, u128);
-use_alloy_default!(u16, u32, u64, i32, I24, U256, u128, Address, FixedBytes<32>);
+prim_decode!(u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, I24, U256);
+use_alloy_default!(
+    u16,
+    u32,
+    u64,
+    u128,
+    i8,
+    i16,
+    i32,
+    i64,
+    i128,
+    I24,
+    U256,
+    Address,
+    FixedBytes<32>
+);
 
 impl PadeEncode for u8 {
     fn pade_encode(&self) -> Vec<u8> {
@@ -87,7 +105,7 @@ impl PadeEncode for u8 {
 impl PadeDecode for Address {
     fn pade_decode(buf: &mut &[u8], _: Option<u8>) -> Result<Self, PadeDecodeError>
     where
-        Self: Sized,
+        Self: Sized
     {
         const BYTES: usize = 160 / 8usize;
         let mut con_buf = [0u8; BYTES];
@@ -105,10 +123,10 @@ impl PadeDecode for Address {
     fn pade_decode_with_width(
         buf: &mut &[u8],
         size: usize,
-        _: Option<u8>,
+        _: Option<u8>
     ) -> Result<Self, PadeDecodeError>
     where
-        Self: Sized,
+        Self: Sized
     {
         const BYTES: usize = 160 / 8usize;
         // grab the padding amount
@@ -133,7 +151,7 @@ impl PadeDecode for Address {
 impl PadeDecode for Bytes {
     fn pade_decode(buf: &mut &[u8], _: Option<u8>) -> Result<Self, PadeDecodeError>
     where
-        Self: Sized,
+        Self: Sized
     {
         let res: Vec<u8> = PadeDecode::pade_decode(buf, None)?;
         Ok(Bytes::copy_from_slice(&res))
@@ -142,10 +160,10 @@ impl PadeDecode for Bytes {
     fn pade_decode_with_width(
         _: &mut &[u8],
         _: usize,
-        _: Option<u8>,
+        _: Option<u8>
     ) -> Result<Self, PadeDecodeError>
     where
-        Self: Sized,
+        Self: Sized
     {
         unreachable!()
     }
@@ -174,7 +192,7 @@ impl PadeEncode for Signature {
 impl PadeDecode for Signature {
     fn pade_decode(buf: &mut &[u8], _: Option<u8>) -> Result<Self, PadeDecodeError>
     where
-        Self: Sized,
+        Self: Sized
     {
         if buf.len() < 65 {
             return Err(PadeDecodeError::InvalidSize);
@@ -187,20 +205,16 @@ impl PadeDecode for Signature {
 
         *buf = &buf[65..];
 
-        Ok(Signature::new(
-            r,
-            s,
-            alloy::primitives::Parity::Parity(v != 0),
-        ))
+        Ok(Signature::new(r, s, alloy::primitives::Parity::Parity(v != 0)))
     }
 
     fn pade_decode_with_width(
         _: &mut &[u8],
         _: usize,
-        _: Option<u8>,
+        _: Option<u8>
     ) -> Result<Self, PadeDecodeError>
     where
-        Self: Sized,
+        Self: Sized
     {
         unreachable!()
     }
@@ -209,7 +223,7 @@ impl PadeDecode for Signature {
 impl PadeDecode for FixedBytes<32> {
     fn pade_decode(buf: &mut &[u8], _: Option<u8>) -> Result<Self, PadeDecodeError>
     where
-        Self: Sized,
+        Self: Sized
     {
         if buf.len() < 32 {
             return Err(PadeDecodeError::InvalidSize);
@@ -222,10 +236,10 @@ impl PadeDecode for FixedBytes<32> {
     fn pade_decode_with_width(
         _: &mut &[u8],
         _: usize,
-        _: Option<u8>,
+        _: Option<u8>
     ) -> Result<Self, PadeDecodeError>
     where
-        Self: Sized,
+        Self: Sized
     {
         unreachable!()
     }
@@ -235,7 +249,7 @@ impl PadeDecode for FixedBytes<32> {
 mod tests {
     use alloy::{
         primitives::FixedBytes,
-        signers::{local::LocalSigner, SignerSync},
+        signers::{local::LocalSigner, SignerSync}
     };
 
     use crate::{PadeDecode, PadeEncode};

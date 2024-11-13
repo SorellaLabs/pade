@@ -53,7 +53,7 @@ impl<T: PadeEncode> PadeEncode for Option<T> {
     fn pade_encode(&self) -> Vec<u8> {
         match self {
             Some(v) => std::iter::once(1_u8).chain(v.pade_encode()).collect(),
-            None => vec![0_u8],
+            None => vec![0_u8]
         }
     }
 
@@ -62,7 +62,7 @@ impl<T: PadeEncode> PadeEncode for Option<T> {
             Some(v) => std::iter::once(1_u8)
                 .chain(v.pade_encode_with_width(width))
                 .collect(),
-            None => vec![0_u8],
+            None => vec![0_u8]
         }
     }
 }
@@ -74,7 +74,7 @@ impl PadeEncode for bool {
     fn pade_encode(&self) -> Vec<u8> {
         match self {
             true => vec![1_u8],
-            false => vec![0_u8],
+            false => vec![0_u8]
         }
     }
 }
