@@ -3,14 +3,14 @@ use std::cmp::max;
 use proc_macro2::{Literal, TokenStream};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
-    spanned::Spanned, Data, DataEnum, DataStruct, DeriveInput, Fields, Generics, Ident, Index,
+    spanned::Spanned, Data, DataEnum, DataStruct, DeriveInput, Fields, Generics, Ident, Index
 };
 
 pub fn build_encode(input: DeriveInput) -> proc_macro::TokenStream {
     let expanded = match input.data {
         Data::Struct(ref s) => build_struct_impl(&input.ident, &input.generics, s),
         Data::Enum(ref e) => build_enum_impl(&input.ident, &input.generics, e),
-        _ => unimplemented!("Not yet able to derive on this type"),
+        _ => unimplemented!("Not yet able to derive on this type")
     };
     proc_macro::TokenStream::from(expanded)
 }
@@ -21,7 +21,7 @@ fn build_struct_impl(name: &Ident, generics: &Generics, s: &DataStruct) -> Token
     let field_list = match s.fields {
         Fields::Named(ref fields) => &fields.named,
         Fields::Unnamed(ref fields) => &fields.unnamed,
-        _ => unimplemented!(),
+        _ => unimplemented!()
     };
 
     let field_encoders: Vec<TokenStream> = field_list

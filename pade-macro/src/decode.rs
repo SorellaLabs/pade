@@ -2,14 +2,14 @@ use itertools::multiunzip;
 use proc_macro2::{Literal, TokenStream};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
-    spanned::Spanned, Data, DataEnum, DataStruct, DeriveInput, Fields, Generics, Ident, Index, Type,
+    spanned::Spanned, Data, DataEnum, DataStruct, DeriveInput, Fields, Generics, Ident, Index, Type
 };
 
 pub fn build_decode(input: DeriveInput) -> proc_macro::TokenStream {
     let expanded = match input.data {
         Data::Struct(ref s) => build_struct_impl(&input.ident, &input.generics, s),
         Data::Enum(ref e) => build_enum_impl(&input.ident, &input.generics, e),
-        _ => unimplemented!("Not yet able to derive on this type"),
+        _ => unimplemented!("Not yet able to derive on this type")
     };
     proc_macro::TokenStream::from(expanded)
 }
@@ -20,7 +20,7 @@ fn build_struct_impl(name: &Ident, generics: &Generics, s: &DataStruct) -> Token
     let field_list = match s.fields {
         Fields::Named(ref fields) => &fields.named,
         Fields::Unnamed(ref fields) => &fields.unnamed,
-        _ => unimplemented!(),
+        _ => unimplemented!()
     };
 
     let (assigned_name, default_name, field_decoders, tys): (Vec<TokenStream>, Vec<TokenStream>,Vec<TokenStream>, Vec<Type>) = multiunzip(field_list
@@ -153,7 +153,7 @@ fn build_enum_impl(name: &Ident, generics: &Generics, e: &DataEnum) -> TokenStre
                         name,
                         quote! (
                             let #name = <#ty>::pade_decode(buf, None)?;
-                        ),
+                        )
                     )
                 });
 

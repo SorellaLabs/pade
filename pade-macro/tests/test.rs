@@ -5,14 +5,11 @@ use pade_macro::{PadeDecode, PadeEncode};
 fn can_derive_on_struct() {
     #[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
     struct Test {
-        index: u128,
-        vector: Vec<u128>,
+        index:  u128,
+        vector: Vec<u128>
     }
 
-    let test_struct = Test {
-        index: 12345,
-        vector: vec![123, 234, 345],
-    };
+    let test_struct = Test { index: 12345, vector: vec![123, 234, 345] };
     let bytes = test_struct.pade_encode();
     let mut slice = bytes.as_slice();
     let decoded = Test::pade_decode(&mut slice, None).unwrap();
@@ -35,21 +32,16 @@ fn can_derive_on_unnamed_struct() {
 fn can_derive_on_nested_struct() {
     #[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
     struct Inside {
-        number: u128,
-        another: u128,
+        number:  u128,
+        another: u128
     }
 
     #[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
     struct Outside {
-        inner: Inside,
+        inner: Inside
     }
 
-    let test_struct = Outside {
-        inner: Inside {
-            number: 12345,
-            another: 23456,
-        },
-    };
+    let test_struct = Outside { inner: Inside { number: 12345, another: 23456 } };
     let bytes = test_struct.pade_encode();
     let mut slice = bytes.as_slice();
     let decoded = Outside::pade_decode(&mut slice, None).unwrap();
@@ -62,7 +54,7 @@ fn can_derive_on_basic_enum() {
     enum BasicEnum {
         StateA,
         StateB,
-        StateC,
+        StateC
     }
 
     let test_enum = BasicEnum::StateB;
@@ -77,7 +69,7 @@ fn can_derive_on_enums_with_data() {
     #[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
     enum DataEnum {
         Point(u128),
-        Line(u128, u128, u128),
+        Line(u128, u128, u128)
     }
 
     let test_enum = DataEnum::Line(12345, 23456, 34567);
@@ -92,7 +84,7 @@ fn can_derive_on_structlike_enums() {
     #[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
     enum StructEnum {
         Once { x: u128, y: u128 },
-        Twice { a: u128, b: u128 },
+        Twice { a: u128, b: u128 }
     }
 
     let test_enum = StructEnum::Twice { a: 12345, b: 23456 };
@@ -107,7 +99,7 @@ fn will_respect_item_width() {
     #[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
     struct TooBig {
         #[pade_width(3)]
-        x: i32,
+        x: i32
     }
 
     let test_struct = TooBig { x: 123 };
@@ -124,19 +116,19 @@ fn can_derive_on_generics() {
     #[derive(PadeEncode, PadeDecode)]
     struct GenTest<A: PadeEncode + PadeDecode> {
         numbers: Vec<u8>,
-        items: Vec<A>,
+        items:   Vec<A>
     }
 
     #[derive(PadeEncode, PadeDecode)]
     enum GenFlatEnum<A: PadeEncode + PadeDecode> {
         Numbers(Vec<u8>),
-        Items(Vec<A>),
+        Items(Vec<A>)
     }
 
     #[derive(PadeEncode, PadeDecode)]
     enum GenStructEnum<A: PadeEncode + PadeDecode> {
         Numbers { vector: Vec<u8> },
-        Items { vector: Vec<A> },
+        Items { vector: Vec<A> }
     }
 }
 
@@ -145,27 +137,27 @@ fn handles_odd_bool_counts() {
     // Seven bools for seven brothers
     #[derive(Default, PadeEncode)]
     struct SevenBools {
-        one: bool,
-        two: bool,
+        one:   bool,
+        two:   bool,
         three: bool,
-        four: bool,
-        five: bool,
-        six: bool,
-        seven: bool,
+        four:  bool,
+        five:  bool,
+        six:   bool,
+        seven: bool
     }
     let seven_test = SevenBools::default();
     seven_test.pade_encode();
 
     #[derive(Default, PadeEncode)]
     struct EightBools {
-        one: bool,
-        two: bool,
+        one:   bool,
+        two:   bool,
         three: bool,
-        four: bool,
-        five: bool,
-        six: bool,
+        four:  bool,
+        five:  bool,
+        six:   bool,
         seven: bool,
-        eight: bool,
+        eight: bool
     }
     let eight_test = EightBools::default();
     eight_test.pade_encode();

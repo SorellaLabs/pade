@@ -13,7 +13,7 @@ pub trait PadeDecode: super::PadeEncode {
     fn pade_decode_with_width(
         buf: &mut &[u8],
         width: usize,
-        var: Option<u8>,
+        var: Option<u8>
     ) -> Result<Self, PadeDecodeError>
     where
         Self: Sized;
@@ -33,7 +33,7 @@ impl<T: PadeDecode + Debug, const N: usize> PadeDecode for [T; N] {
     fn pade_decode_with_width(
         buf: &mut &[u8],
         width: usize,
-        var: Option<u8>,
+        var: Option<u8>
     ) -> Result<Self, PadeDecodeError> {
         let mut this = vec![];
         for _ in 0..N {
@@ -51,7 +51,7 @@ impl<T: PadeDecode> PadeDecode for Option<T> {
             v != 0
         } else {
             if buf.is_empty() {
-                return Err(PadeDecodeError::InvalidSize);
+                return Err(PadeDecodeError::InvalidSize)
             }
             let result = buf[0] != 0;
             *buf = &buf[1..];
@@ -68,13 +68,13 @@ impl<T: PadeDecode> PadeDecode for Option<T> {
     fn pade_decode_with_width(
         buf: &mut &[u8],
         width: usize,
-        var: Option<u8>,
+        var: Option<u8>
     ) -> Result<Self, PadeDecodeError> {
         let ctr = if let Some(v) = var {
             v != 0
         } else {
             if buf.is_empty() {
-                return Err(PadeDecodeError::InvalidSize);
+                return Err(PadeDecodeError::InvalidSize)
             }
             let result = buf[0] != 0;
             *buf = &buf[1..];
@@ -92,11 +92,11 @@ impl<T: PadeDecode> PadeDecode for Option<T> {
 impl PadeDecode for bool {
     fn pade_decode(buf: &mut &[u8], var: Option<u8>) -> Result<Self, PadeDecodeError> {
         if let Some(var) = var {
-            return Ok(var != 0);
+            return Ok(var != 0)
         }
 
         if buf.is_empty() {
-            return Err(PadeDecodeError::InvalidSize);
+            return Err(PadeDecodeError::InvalidSize)
         }
         // check first byte;
         let ctr = buf[0] != 0;
@@ -108,7 +108,7 @@ impl PadeDecode for bool {
     fn pade_decode_with_width(
         _: &mut &[u8],
         _: usize,
-        _: Option<u8>,
+        _: Option<u8>
     ) -> Result<Self, PadeDecodeError> {
         unreachable!()
     }
@@ -119,7 +119,7 @@ impl PadeDecode for bool {
 impl<T: PadeDecode> PadeDecode for Vec<T> {
     fn pade_decode(buf: &mut &[u8], var: Option<u8>) -> Result<Self, PadeDecodeError> {
         if buf.len() < 3 {
-            return Err(PadeDecodeError::InvalidSize);
+            return Err(PadeDecodeError::InvalidSize)
         }
         // read vec length.
         let length = &buf[0..3];
@@ -130,10 +130,14 @@ impl<T: PadeDecode> PadeDecode for Vec<T> {
         // capture length to ensure we don't over decode.
         let mut decode_slice = &buf[0..length];
         let mut res = Vec::new();
+
         while let Ok(d) = T::pade_decode(&mut decode_slice, var) {
             res.push(d);
         }
-        assert!(decode_slice.is_empty());
+
+        if !decode_slice.is_empty() {
+            return Err(PadeDecodeError::ListDecodingError)
+        }
 
         // progress
         *buf = &buf[length..];
@@ -144,10 +148,10 @@ impl<T: PadeDecode> PadeDecode for Vec<T> {
     fn pade_decode_with_width(
         buf: &mut &[u8],
         width: usize,
-        var: Option<u8>,
+        var: Option<u8>
     ) -> Result<Self, PadeDecodeError> {
         if buf.len() < 3 {
-            return Err(PadeDecodeError::InvalidSize);
+            return Err(PadeDecodeError::InvalidSize)
         }
         // read vec length.
         let length = &buf[0..3];
@@ -171,6 +175,8 @@ pub enum PadeDecodeError {
     InvalidSize,
     #[error("got a invalid enum variant: {0:?}")]
     InvalidEnumVariant(u8),
+    #[error("remaining bytes while decoding list")]
+    ListDecodingError
 }
 
 #[cfg(test)]

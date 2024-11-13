@@ -4,7 +4,7 @@ use bitvec::{order::Lsb0, vec::BitVec, view::BitView};
 
 #[derive(Debug, Default)]
 pub struct HeaderBits {
-    inner: BitVec<u8, Lsb0>,
+    inner: BitVec<u8, Lsb0>
 }
 
 impl HeaderBits {
@@ -57,14 +57,7 @@ mod test {
         h.add_bits(&[u8::MAX, u8::MAX], 20);
         assert_eq!(h.inner.len(), 24, "Too many bits taken from only one byte");
         let v = h.into_vec();
-        assert_eq!(
-            v.len(),
-            3,
-            "Too many bytes generated from a bit over-consumption"
-        );
-        assert!(
-            v.iter().all(|x| *x == u8::MAX),
-            "Invalid values in bit output"
-        )
+        assert_eq!(v.len(), 3, "Too many bytes generated from a bit over-consumption");
+        assert!(v.iter().all(|x| *x == u8::MAX), "Invalid values in bit output")
     }
 }
