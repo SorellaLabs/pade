@@ -54,7 +54,10 @@ impl<T: PadeDecode> PadeDecode for Option<T> {
                 return Err(PadeDecodeError::InvalidSize)
             }
             let result = buf[0] != 0;
-            *buf = &buf[1..];
+            if buf.len() > 1 {
+                *buf = &buf[1..];
+            }
+
             result
         };
 
@@ -77,7 +80,10 @@ impl<T: PadeDecode> PadeDecode for Option<T> {
                 return Err(PadeDecodeError::InvalidSize)
             }
             let result = buf[0] != 0;
-            *buf = &buf[1..];
+
+            if buf.len() > 1 {
+                *buf = &buf[1..];
+            }
             result
         };
 
@@ -100,8 +106,11 @@ impl PadeDecode for bool {
         }
         // check first byte;
         let ctr = buf[0] != 0;
-        // progress buffer
-        *buf = &buf[1..];
+
+        if !buf.is_empty() {
+            // progress buffer
+            *buf = &buf[1..];
+        }
         Ok(ctr)
     }
 
@@ -127,6 +136,10 @@ impl<T: PadeDecode> PadeDecode for Vec<T> {
 
         // progress buf pass offset
         *buf = &buf[3..];
+        if buf.len() < length {
+            return Err(PadeDecodeError::InvalidSize)
+        }
+
         // capture length to ensure we don't over decode.
         let mut decode_slice = &buf[0..length];
         let mut res = Vec::new();
@@ -157,6 +170,10 @@ impl<T: PadeDecode> PadeDecode for Vec<T> {
         let length = &buf[0..3];
         let length = usize::from_be_bytes([0, 0, 0, 0, 0, length[0], length[1], length[2]]);
 
+        if buf.len() < length {
+            return Err(PadeDecodeError::InvalidSize)
+        }
+
         // progress buf
         *buf = &buf[3..];
 
@@ -176,7 +193,9 @@ pub enum PadeDecodeError {
     #[error("got a invalid enum variant: {0:?}")]
     InvalidEnumVariant(u8),
     #[error("remaining bytes while decoding list")]
-    ListDecodingError
+    ListDecodingError,
+    #[error("With is bigger than Overall Size")]
+    IncorrectWidth
 }
 
 #[cfg(test)]

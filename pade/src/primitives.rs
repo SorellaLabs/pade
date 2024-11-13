@@ -49,6 +49,9 @@ macro_rules! prim_decode {
                 {
                     const BYTES: usize = <$x>::BITS as usize / 8usize;
 
+                    if size > BYTES {
+                        return Err(PadeDecodeError::IncorrectWidth)
+                    }
                     // item size in bytes vs given rep.
                     let padding_offset = BYTES - size;
 
@@ -109,6 +112,7 @@ impl PadeDecode for Address {
     {
         const BYTES: usize = 160 / 8usize;
         let mut con_buf = [0u8; BYTES];
+
         for (i, con) in con_buf.iter_mut().enumerate().take(BYTES) {
             let Some(next) = buf.get(i) else {
                 return Err(PadeDecodeError::InvalidSize);
@@ -130,6 +134,15 @@ impl PadeDecode for Address {
     {
         const BYTES: usize = 160 / 8usize;
         // grab the padding amount
+
+        if size > BYTES {
+            return Err(PadeDecodeError::IncorrectWidth)
+        }
+
+        if buf.len() < size {
+            return Err(PadeDecodeError::InvalidSize)
+        }
+
         let offset = size - BYTES;
         let subslice = &buf[offset..size];
 
@@ -195,7 +208,7 @@ impl PadeDecode for Signature {
         Self: Sized
     {
         if buf.len() < 65 {
-            return Err(PadeDecodeError::InvalidSize);
+            return Err(PadeDecodeError::InvalidSize)
         }
 
         let bytes = &buf[0..65];
@@ -226,7 +239,7 @@ impl PadeDecode for FixedBytes<32> {
         Self: Sized
     {
         if buf.len() < 32 {
-            return Err(PadeDecodeError::InvalidSize);
+            return Err(PadeDecodeError::InvalidSize)
         }
 
         let res: [u8; 32] = PadeDecode::pade_decode(buf, None)?;
