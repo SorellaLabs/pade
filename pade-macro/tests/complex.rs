@@ -123,6 +123,15 @@ fn regression_panic_2() {
 }
 
 #[test]
+fn regression_panic_3() {
+    let mut bytes: &[u8] = &[
+        246, 0, 134, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 30, 132, 128, 0, 0, 80
+    ];
+    let _ = OuterStruct::pade_decode(&mut bytes, None);
+}
+
+#[test]
 fn bool_ordering_more_than_1byte() {
     #[derive(PadeEncode, PadeDecode, PartialEq, Eq, Debug)]
     struct OuterStruct {
