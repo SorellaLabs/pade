@@ -126,7 +126,7 @@ fn supports_struct_with_enum() {
 
     let encoded = outer.pade_encode();
     let mut slice = encoded.as_slice();
-    let _ = roundtrip_outer_struct_a(&mut slice);
+    roundtrip_outer_struct_a(&mut slice);
 }
 
 #[test]
@@ -196,7 +196,7 @@ fn bool_ordering_more_than_1byte() {
     let mut slice = encoded.as_slice();
     println!("{:08b}", slice[0]);
     println!("{:08b}", slice[1]);
-    let _ = roundtrip_outer_struct_b(&mut slice);
+    roundtrip_outer_struct_b(&mut slice);
 }
 
 #[test]
@@ -272,7 +272,7 @@ fn option_struct() {
     let s = TestStruct { number: 100, option: Some(95), number_two: 200, bool: true };
     let bytes = s.pade_encode();
     let mut slice = bytes.as_slice();
-    let _ = roundtrip_test_struct(&mut slice);
+    roundtrip_test_struct(&mut slice);
 }
 
 #[derive(Debug, PadeEncode, PadeDecode, PartialEq, Eq)]
@@ -325,5 +325,5 @@ fn super_specific_dave_test() {
     };
     let bytes = item.pade_encode();
     let mut slice = bytes.as_slice();
-    let _ = roundtrip_user_order(&mut slice);
+    roundtrip_user_order(&mut slice);
 }
