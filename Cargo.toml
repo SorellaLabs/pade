@@ -16,4 +16,4 @@ exclude = [".github/"]
 pade-macro.path = "./pade-macro/"
 pade.path = "./pade/"
 thiserror = "1.0"
-alloy = { version = "0.4.2", features = ["sol-types"] }
+alloy = { version = "0.7.3", features = ["sol-types"] }
