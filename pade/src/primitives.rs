@@ -1,5 +1,5 @@
 use alloy::{
-    primitives::{aliases::I24, Address, Bytes, FixedBytes, PrimitiveSignature, U160, U256},
+    primitives::{Address, Bytes, FixedBytes, PrimitiveSignature, U160, U256, aliases::I24},
     sol_types::SolValue
 };
 
@@ -137,11 +137,11 @@ impl PadeDecode for Address {
         // grab the padding amount
 
         if size > BYTES {
-            return Err(PadeDecodeError::IncorrectWidth)
+            return Err(PadeDecodeError::IncorrectWidth);
         }
 
         if buf.len() < size {
-            return Err(PadeDecodeError::InvalidSize)
+            return Err(PadeDecodeError::InvalidSize);
         }
 
         let offset = size - BYTES;
@@ -209,7 +209,7 @@ impl PadeDecode for PrimitiveSignature {
         Self: Sized
     {
         if buf.len() < 65 {
-            return Err(PadeDecodeError::InvalidSize)
+            return Err(PadeDecodeError::InvalidSize);
         }
 
         let bytes = &buf[0..65];
@@ -240,7 +240,7 @@ impl PadeDecode for FixedBytes<32> {
         Self: Sized
     {
         if buf.len() < 32 {
-            return Err(PadeDecodeError::InvalidSize)
+            return Err(PadeDecodeError::InvalidSize);
         }
 
         let res: [u8; 32] = PadeDecode::pade_decode(buf, None)?;
@@ -263,7 +263,7 @@ impl PadeDecode for FixedBytes<32> {
 mod tests {
     use alloy::{
         primitives::FixedBytes,
-        signers::{local::LocalSigner, SignerSync}
+        signers::{SignerSync, local::LocalSigner}
     };
 
     use crate::{PadeDecode, PadeEncode};
