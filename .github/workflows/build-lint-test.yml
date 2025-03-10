@@ -1,77 +1,123 @@
-name: 'Build-Lint-Test'
+name: Check Rust
 on:
-  push:
-    branches:
-      - main
   pull_request:
-    branches: [main]
+
+# stop in-progress on new push
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CARGO_TERM_COLOR: always
-  FOUNDRY_PROFILE: ci
 
 jobs:
-  build:
-    name: 'Build + Fmt'
+  cargo-fmt:
+    name: cargo fmt
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@nightly
+      - name: Check-Out
+        uses: actions/checkout@v4
         with:
-          components: clippy, rustfmt
-          toolchain: nightly
+          submodules: recursive
+
+      - name: Install Nightly
+        run: |
+          rustup toolchain install nightly
+          rustup component add --toolchain nightly-x86_64-unknown-linux-gnu rustfmt
+
+      - name: cargo +nightly fmt
+        run: cargo +nightly fmt --all -- --check
+
+  cargo-check:
+    name: cargo check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-Out
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
 
-      - name: "build nightly"
-        run: cargo build --workspace --all-features
-        env:
-          RUSTFLAGS: -D warnings
+      - name: cargo check --workspace --all-features
+        run: cargo check --workspace --all-features
 
-      - name: "cargo fmt"
-        run: cargo fmt --all --check
-
-  clippy:
-    name: "clippy"
+  cargo-clippy:
+    name: cargo clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@nightly
+      - name: Check-Out
+        uses: actions/checkout@v4
         with:
-          components: clippy,rustfmt
-          toolchain: nightly
-
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: nightly
+          submodules: recursive
 
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
-          key: "clippy-nightly"
 
-      - name: "clippy all"
-        run: cargo clippy --all-targets
-        env: 
-          RUSTFLAGS: -D warnings
+      - name: cargo clippy --workspace --all-features
+        run: cargo clippy --workspace --all-features
 
-  test:
-    name: 'Run Tests'
+  cargo-fix:
+    name: cargo fix
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Check-Out
+        uses: actions/checkout@v4
         with:
-          toolchain: nightly
-          profile: minimal
-          override: true
+          submodules: recursive
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: cargo fix --workspace --all-features
+        run: |
+          # Run cargo fix on the project
+          cargo fix --workspace --all-features
+
+          # Check for local git changes
+          if ! git diff --exit-code; then
+              echo "There are local changes after running 'cargo fix --workspace --all-features' ❌"
+              exit 1
+          else
+              echo "No changes detected after running 'cargo fix --workspace --all-features' ✅"
+          fi
+
+  cargo-test:
+    name: cargo test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-Out
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
-      - name: tests 
-        run: cargo test --workspace --all-features
+
+      - name: cargo test --workspace
+        run: cargo test --workspace
+
+  cargo-audit:
+    name: cargo audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-Out
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Utilize Shared Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: cargo-audit
+          cache-on-failure: true
+
+      - name: Install cargo-audit
+        run: cargo install --force cargo-audit
+
+      - name: cargo audit
+        run: |
+          cargo audit
