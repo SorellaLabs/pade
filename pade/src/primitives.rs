@@ -1,5 +1,5 @@
 use alloy::{
-    primitives::{Address, Bytes, FixedBytes, PrimitiveSignature, U256, aliases::I24},
+    primitives::{Address, Bytes, FixedBytes, PrimitiveSignature, U160, U256, aliases::I24},
     sol_types::SolValue
 };
 
@@ -82,7 +82,7 @@ macro_rules! prim_decode {
     };
 }
 
-prim_decode!(u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, I24, U256);
+prim_decode!(u8, u16, u32, u64, u128, i8, i16, i32, i64, i128, I24, U160, U256);
 use_alloy_default!(
     u16,
     u32,
@@ -95,6 +95,7 @@ use_alloy_default!(
     i128,
     I24,
     U256,
+    U160,
     Address,
     FixedBytes<32>
 );
