@@ -51,7 +51,7 @@ impl<T: PadeDecode> PadeDecode for Option<T> {
             v != 0
         } else {
             if buf.is_empty() {
-                return Err(PadeDecodeError::InvalidSize)
+                return Err(PadeDecodeError::InvalidSize);
             }
             let result = buf[0] != 0;
             if buf.len() > 1 {
@@ -61,11 +61,7 @@ impl<T: PadeDecode> PadeDecode for Option<T> {
             result
         };
 
-        if ctr {
-            Ok(Some(T::pade_decode(buf, var)?))
-        } else {
-            Ok(None)
-        }
+        if ctr { Ok(Some(T::pade_decode(buf, var)?)) } else { Ok(None) }
     }
 
     fn pade_decode_with_width(
@@ -77,7 +73,7 @@ impl<T: PadeDecode> PadeDecode for Option<T> {
             v != 0
         } else {
             if buf.is_empty() {
-                return Err(PadeDecodeError::InvalidSize)
+                return Err(PadeDecodeError::InvalidSize);
             }
             let result = buf[0] != 0;
 
@@ -87,22 +83,18 @@ impl<T: PadeDecode> PadeDecode for Option<T> {
             result
         };
 
-        if ctr {
-            Ok(Some(T::pade_decode_with_width(buf, width, var)?))
-        } else {
-            Ok(None)
-        }
+        if ctr { Ok(Some(T::pade_decode_with_width(buf, width, var)?)) } else { Ok(None) }
     }
 }
 
 impl PadeDecode for bool {
     fn pade_decode(buf: &mut &[u8], var: Option<u8>) -> Result<Self, PadeDecodeError> {
         if let Some(var) = var {
-            return Ok(var != 0)
+            return Ok(var != 0);
         }
 
         if buf.is_empty() {
-            return Err(PadeDecodeError::InvalidSize)
+            return Err(PadeDecodeError::InvalidSize);
         }
         // check first byte;
         let ctr = buf[0] != 0;
@@ -128,7 +120,7 @@ impl PadeDecode for bool {
 impl<T: PadeDecode> PadeDecode for Vec<T> {
     fn pade_decode(buf: &mut &[u8], var: Option<u8>) -> Result<Self, PadeDecodeError> {
         if buf.len() < 3 {
-            return Err(PadeDecodeError::InvalidSize)
+            return Err(PadeDecodeError::InvalidSize);
         }
         // read vec length.
         let length = &buf[0..3];
@@ -137,7 +129,7 @@ impl<T: PadeDecode> PadeDecode for Vec<T> {
         // progress buf pass offset
         *buf = &buf[3..];
         if buf.len() < length {
-            return Err(PadeDecodeError::InvalidSize)
+            return Err(PadeDecodeError::InvalidSize);
         }
 
         // capture length to ensure we don't over decode.
@@ -149,7 +141,7 @@ impl<T: PadeDecode> PadeDecode for Vec<T> {
         }
 
         if !decode_slice.is_empty() {
-            return Err(PadeDecodeError::ListDecodingError)
+            return Err(PadeDecodeError::ListDecodingError);
         }
 
         // progress
@@ -164,14 +156,14 @@ impl<T: PadeDecode> PadeDecode for Vec<T> {
         var: Option<u8>
     ) -> Result<Self, PadeDecodeError> {
         if buf.len() < 3 {
-            return Err(PadeDecodeError::InvalidSize)
+            return Err(PadeDecodeError::InvalidSize);
         }
         // read vec length.
         let length = &buf[0..3];
         let length = usize::from_be_bytes([0, 0, 0, 0, 0, length[0], length[1], length[2]]);
 
         if buf.len() < length {
-            return Err(PadeDecodeError::InvalidSize)
+            return Err(PadeDecodeError::InvalidSize);
         }
 
         // progress buf

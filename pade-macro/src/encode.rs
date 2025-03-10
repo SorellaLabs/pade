@@ -3,7 +3,7 @@ use std::cmp::max;
 use proc_macro2::{Literal, TokenStream};
 use quote::{format_ident, quote, quote_spanned};
 use syn::{
-    spanned::Spanned, Data, DataEnum, DataStruct, DeriveInput, Fields, Generics, Ident, Index
+    Data, DataEnum, DataStruct, DeriveInput, Fields, Generics, Ident, Index, spanned::Spanned
 };
 
 pub fn build_encode(input: DeriveInput) -> proc_macro::TokenStream {
