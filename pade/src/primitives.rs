@@ -1,5 +1,7 @@
 use alloy::{
-    primitives::{Address, Bytes, FixedBytes, PrimitiveSignature, U160, U256, aliases::I24},
+    primitives::{
+        Address, Bytes, FixedBytes, PrimitiveSignature, U160, U256, aliases::I24, normalize_v
+    },
     sol_types::SolValue
 };
 
@@ -219,7 +221,7 @@ impl PadeDecode for PrimitiveSignature {
 
         *buf = &buf[65..];
 
-        Ok(PrimitiveSignature::new(r, s, v != 0))
+        Ok(PrimitiveSignature::new(r, s, normalize_v(v as u64).unwrap()))
     }
 
     fn pade_decode_with_width(
