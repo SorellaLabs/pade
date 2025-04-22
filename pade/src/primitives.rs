@@ -1,7 +1,5 @@
 use alloy::{
-    primitives::{
-        Address, Bytes, FixedBytes, PrimitiveSignature, U160, U256, aliases::I24, normalize_v
-    },
+    primitives::{Address, Bytes, FixedBytes, Signature, U160, U256, aliases::I24, normalize_v},
     sol_types::SolValue
 };
 
@@ -195,7 +193,7 @@ impl PadeEncode for Bytes {
 }
 
 // Custom impl for Signature which needs validation
-impl PadeEncode for PrimitiveSignature {
+impl PadeEncode for Signature {
     fn pade_encode(&self) -> Vec<u8> {
         let mut sig = [0u8; 65];
         sig[0] = self.v() as u8;
@@ -205,7 +203,7 @@ impl PadeEncode for PrimitiveSignature {
     }
 }
 
-impl PadeDecode for PrimitiveSignature {
+impl PadeDecode for Signature {
     fn pade_decode(buf: &mut &[u8], _: Option<u8>) -> Result<Self, PadeDecodeError>
     where
         Self: Sized
@@ -221,7 +219,7 @@ impl PadeDecode for PrimitiveSignature {
 
         *buf = &buf[65..];
 
-        Ok(PrimitiveSignature::new(r, s, normalize_v(v as u64).unwrap()))
+        Ok(Signature::new(r, s, normalize_v(v as u64).unwrap()))
     }
 
     fn pade_decode_with_width(
@@ -283,8 +281,7 @@ mod tests {
         let sig = signer.sign_hash_sync(&hash).unwrap();
         let encoded = sig.pade_encode();
         let decoded_sig =
-            alloy::primitives::PrimitiveSignature::pade_decode(&mut encoded.as_slice(), None)
-                .unwrap();
+            alloy::primitives::Signature::pade_decode(&mut encoded.as_slice(), None).unwrap();
         assert_eq!(sig, decoded_sig);
     }
 }
