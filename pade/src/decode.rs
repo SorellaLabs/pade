@@ -13,7 +13,7 @@ pub trait PadeDecode: super::PadeEncode {
     fn pade_decode_with_width(
         buf: &mut &[u8],
         width: usize,
-        var: Option<u8>
+        var: Option<u8>,
     ) -> Result<Self, PadeDecodeError>
     where
         Self: Sized;
@@ -33,7 +33,7 @@ impl<T: PadeDecode + Debug, const N: usize> PadeDecode for [T; N] {
     fn pade_decode_with_width(
         buf: &mut &[u8],
         width: usize,
-        var: Option<u8>
+        var: Option<u8>,
     ) -> Result<Self, PadeDecodeError> {
         let mut this = vec![];
         for _ in 0..N {
@@ -67,7 +67,7 @@ impl<T: PadeDecode> PadeDecode for Option<T> {
     fn pade_decode_with_width(
         buf: &mut &[u8],
         width: usize,
-        var: Option<u8>
+        var: Option<u8>,
     ) -> Result<Self, PadeDecodeError> {
         let ctr = if let Some(v) = var {
             v != 0
@@ -109,7 +109,7 @@ impl PadeDecode for bool {
     fn pade_decode_with_width(
         _: &mut &[u8],
         _: usize,
-        _: Option<u8>
+        _: Option<u8>,
     ) -> Result<Self, PadeDecodeError> {
         unreachable!()
     }
@@ -124,7 +124,10 @@ impl<T: PadeDecode> PadeDecode for Vec<T> {
         }
         // read vec length.
         let length = &buf[0..3];
+        #[cfg(target_pointer_width = "64")]
         let length = usize::from_be_bytes([0, 0, 0, 0, 0, length[0], length[1], length[2]]);
+        #[cfg(target_pointer_width = "32")]
+        let length = usize::from_be_bytes([0, length[0], length[1], length[2]]);
 
         // progress buf pass offset
         *buf = &buf[3..];
@@ -153,14 +156,17 @@ impl<T: PadeDecode> PadeDecode for Vec<T> {
     fn pade_decode_with_width(
         buf: &mut &[u8],
         width: usize,
-        var: Option<u8>
+        var: Option<u8>,
     ) -> Result<Self, PadeDecodeError> {
         if buf.len() < 3 {
             return Err(PadeDecodeError::InvalidSize);
         }
         // read vec length.
         let length = &buf[0..3];
+        #[cfg(target_pointer_width = "64")]
         let length = usize::from_be_bytes([0, 0, 0, 0, 0, length[0], length[1], length[2]]);
+        #[cfg(target_pointer_width = "32")]
+        let length = usize::from_be_bytes([0, length[0], length[1], length[2]]);
 
         if buf.len() < length {
             return Err(PadeDecodeError::InvalidSize);
@@ -187,7 +193,7 @@ pub enum PadeDecodeError {
     #[error("remaining bytes while decoding list")]
     ListDecodingError,
     #[error("With is bigger than Overall Size")]
-    IncorrectWidth
+    IncorrectWidth,
 }
 
 #[cfg(test)]

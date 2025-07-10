@@ -87,7 +87,10 @@ impl<T: PadeEncode> PadeEncode for Vec<T> {
         let items: Vec<u8> = self.iter().flat_map(|i| i.pade_encode()).collect();
 
         let len_bytes = items.len().to_be_bytes();
+        #[cfg(target_pointer_width = "64")]
         let len = vec![len_bytes[5], len_bytes[6], len_bytes[7]];
+        #[cfg(target_pointer_width = "32")]
+        let len = vec![len_bytes[1], len_bytes[2], len_bytes[3]];
         [len, items].concat()
     }
 
@@ -97,7 +100,10 @@ impl<T: PadeEncode> PadeEncode for Vec<T> {
             .flat_map(|i| i.pade_encode_with_width(width))
             .collect();
         let len_bytes = items.len().to_be_bytes();
+        #[cfg(target_pointer_width = "64")]
         let len = vec![len_bytes[5], len_bytes[6], len_bytes[7]];
+        #[cfg(target_pointer_width = "32")]
+        let len = vec![len_bytes[1], len_bytes[2], len_bytes[3]];
         [len, items].concat()
     }
 }
