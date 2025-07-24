@@ -1,5 +1,6 @@
-use crate::{PadeDecode, PadeDecodeError, PadeEncode};
 use alloy_sol_types::SolValue;
+
+use crate::{PadeDecode, PadeDecodeError, PadeEncode};
 
 /// Uses the default alloy `abi_encode_packed` to PADE-encode this type.  We
 /// share many primitives with Alloy so this makes it simple to implement the
@@ -91,13 +92,14 @@ impl PadeEncode for u8 {
 #[cfg(feature = "alloy")]
 mod alloy_specific {
 
-    use super::*;
     use alloy::{
         primitives::{
-            Address, Bytes, FixedBytes, Signature, U160, U256, aliases::I24, normalize_v,
+            Address, Bytes, FixedBytes, Signature, U160, U256, aliases::I24, normalize_v
         },
-        sol_types::SolValue,
+        sol_types::SolValue
     };
+
+    use super::*;
 
     use_alloy_default!(I24, U256, U160, Address, FixedBytes<32>);
 
@@ -106,7 +108,7 @@ mod alloy_specific {
     impl PadeDecode for Address {
         fn pade_decode(buf: &mut &[u8], _: Option<u8>) -> Result<Self, PadeDecodeError>
         where
-            Self: Sized,
+            Self: Sized
         {
             const BYTES: usize = 160 / 8usize;
             let mut con_buf = [0u8; BYTES];
@@ -125,10 +127,10 @@ mod alloy_specific {
         fn pade_decode_with_width(
             buf: &mut &[u8],
             size: usize,
-            _: Option<u8>,
+            _: Option<u8>
         ) -> Result<Self, PadeDecodeError>
         where
-            Self: Sized,
+            Self: Sized
         {
             const BYTES: usize = 160 / 8usize;
             // grab the padding amount
@@ -162,7 +164,7 @@ mod alloy_specific {
     impl PadeDecode for Bytes {
         fn pade_decode(buf: &mut &[u8], _: Option<u8>) -> Result<Self, PadeDecodeError>
         where
-            Self: Sized,
+            Self: Sized
         {
             let res: Vec<u8> = PadeDecode::pade_decode(buf, None)?;
             Ok(Bytes::copy_from_slice(&res))
@@ -171,10 +173,10 @@ mod alloy_specific {
         fn pade_decode_with_width(
             _: &mut &[u8],
             _: usize,
-            _: Option<u8>,
+            _: Option<u8>
         ) -> Result<Self, PadeDecodeError>
         where
-            Self: Sized,
+            Self: Sized
         {
             unreachable!()
         }
@@ -203,7 +205,7 @@ mod alloy_specific {
     impl PadeDecode for Signature {
         fn pade_decode(buf: &mut &[u8], _: Option<u8>) -> Result<Self, PadeDecodeError>
         where
-            Self: Sized,
+            Self: Sized
         {
             if buf.len() < 65 {
                 return Err(PadeDecodeError::InvalidSize);
@@ -222,10 +224,10 @@ mod alloy_specific {
         fn pade_decode_with_width(
             _: &mut &[u8],
             _: usize,
-            _: Option<u8>,
+            _: Option<u8>
         ) -> Result<Self, PadeDecodeError>
         where
-            Self: Sized,
+            Self: Sized
         {
             unreachable!()
         }
@@ -234,7 +236,7 @@ mod alloy_specific {
     impl PadeDecode for FixedBytes<32> {
         fn pade_decode(buf: &mut &[u8], _: Option<u8>) -> Result<Self, PadeDecodeError>
         where
-            Self: Sized,
+            Self: Sized
         {
             if buf.len() < 32 {
                 return Err(PadeDecodeError::InvalidSize);
@@ -247,10 +249,10 @@ mod alloy_specific {
         fn pade_decode_with_width(
             _: &mut &[u8],
             _: usize,
-            _: Option<u8>,
+            _: Option<u8>
         ) -> Result<Self, PadeDecodeError>
         where
-            Self: Sized,
+            Self: Sized
         {
             unreachable!()
         }
@@ -273,7 +275,7 @@ mod tests {
     fn encodes_and_decodes_signature() {
         use alloy::{
             primitives::FixedBytes,
-            signers::{SignerSync, local::LocalSigner},
+            signers::{SignerSync, local::LocalSigner}
         };
 
         use crate::PadeDecode;
