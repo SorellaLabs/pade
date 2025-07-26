@@ -188,6 +188,8 @@ impl<T: PadeDecode> PadeDecode for Vec<T> {
 pub enum PadeDecodeError {
     #[error("not enough bytes remaining in the buffer")]
     InvalidSize,
+    #[error("failed to nomalize V in signature, ensure signature is encoded V,R,S")]
+    InvalidSignatureOrder,
     #[error("got a invalid enum variant: {0:?}")]
     InvalidEnumVariant(u8),
     #[error("remaining bytes while decoding list")]

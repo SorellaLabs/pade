@@ -218,7 +218,11 @@ mod alloy_specific {
 
             *buf = &buf[65..];
 
-            Ok(Signature::new(r, s, normalize_v(v as u64).unwrap()))
+            let Some(normalized_v) = normalize_v(v as u64) else {
+                return Err(PadeDecodeError::InvalidSignatureOrder);
+            };
+
+            Ok(Signature::new(r, s, normalized_v))
         }
 
         fn pade_decode_with_width(
